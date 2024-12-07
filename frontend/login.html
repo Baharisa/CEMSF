@@ -24,31 +24,40 @@
   </div>
 
   <script>
+    // Listen for the form submission event
     document.getElementById('login-form').addEventListener('submit', function(e) {
-      e.preventDefault();
+      e.preventDefault();  // Prevent default form submission
 
+      // Get email and password from the form
       const loginData = {
         email: document.getElementById('email').value,
         password: document.getElementById('password').value
       };
 
+      // Send login request to the server
       fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json' // Set the content type to JSON
         },
-        body: JSON.stringify(loginData)
+        body: JSON.stringify(loginData) // Send the login data as JSON
       })
-      .then(response => response.json())
+      .then(response => response.json())  // Parse the response as JSON
       .then(data => {
         if (data.token) {
+          // Store the JWT token in localStorage
           localStorage.setItem('token', data.token);
-          window.location.href = 'events.html'; // Redirect to the events page
+          // Redirect to events page
+          window.location.href = 'events.html';
         } else {
+          // Show error if no token is returned
           alert(data.error);
         }
       })
-      .catch(error => console.error('Error logging in:', error));
+      .catch(error => {
+        // Catch any errors that occur during the fetch process
+        console.error('Error logging in:', error);
+      });
     });
   </script>
 </body>

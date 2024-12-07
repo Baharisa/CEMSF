@@ -4,7 +4,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Function to fetch events with pagination
   function fetchEvents(page) {
-    fetch(`http://localhost:5000/api/events?page=${page}&limit=${limit}`)
+    const token = localStorage.getItem('token'); // Get JWT token from localStorage
+    fetch(`http://localhost:5000/api/events?page=${page}&limit=${limit}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Send the token with the request
+        'Content-Type': 'application/json',
+      },
+    })
       .then(response => response.json())
       .then(data => {
         const eventList = document.getElementById('event-list');
@@ -68,6 +75,8 @@ document.addEventListener("DOMContentLoaded", function() {
   document.getElementById('new-event-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
+    const token = localStorage.getItem('token'); // Get JWT token from localStorage
+
     const newEvent = {
       title: document.getElementById('title').value,
       date: document.getElementById('date').value,
@@ -78,7 +87,8 @@ document.addEventListener("DOMContentLoaded", function() {
     fetch('http://localhost:5000/api/events', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Add token to the header
       },
       body: JSON.stringify(newEvent)
     })
@@ -101,10 +111,13 @@ function updateEvent(id) {
     location: prompt("Enter new location:")
   };
 
+  const token = localStorage.getItem('token'); // Get JWT token from localStorage
+
   fetch(`http://localhost:5000/api/events/${id}`, {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`, // Add token to the header
     },
     body: JSON.stringify(updatedEvent)
   })
@@ -119,8 +132,13 @@ function updateEvent(id) {
 // Delete event function
 function deleteEvent(id) {
   if (confirm("Are you sure you want to delete this event?")) {
+    const token = localStorage.getItem('token'); // Get JWT token from localStorage
+
     fetch(`http://localhost:5000/api/events/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Add token to the header
+      }
     })
     .then(response => response.json())
     .then(data => {

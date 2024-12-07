@@ -1,7 +1,8 @@
-const express = require('express'); 
+const express = require('express');
 const router = express.Router();
 const pool = require('../config/db'); // Import PostgreSQL connection pool
 const moment = require('moment'); // Import moment.js for date formatting
+const authMiddleware = require('../middleware/authMiddleware'); // Protect routes with authMiddleware
 
 // GET all events with pagination
 router.get('/', async (req, res) => {
@@ -49,8 +50,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST a new event
-router.post('/', async (req, res) => {
+// POST a new event (Protected route, only accessible for logged-in users)
+router.post('/', authMiddleware, async (req, res) => {
   const { title, date, description, location } = req.body;
 
   try {
@@ -71,8 +72,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT (Update) an event by ID
-router.put('/:id', async (req, res) => {
+// PUT (Update) an event by ID (Protected route, only accessible for logged-in users)
+router.put('/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { title, date, description, location } = req.body;
 
@@ -94,8 +95,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE an event by ID
-router.delete('/:id', async (req, res) => {
+// DELETE an event by ID (Protected route, only accessible for logged-in users)
+router.delete('/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
 
   try {
