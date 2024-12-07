@@ -4,8 +4,8 @@ const pool = require('../config/db'); // Import PostgreSQL connection pool
 const moment = require('moment'); // Import moment.js for date formatting
 const authMiddleware = require('../middleware/authMiddleware'); // Protect routes with authMiddleware
 
-// GET all events with pagination
-router.get('/', async (req, res) => {
+// GET all events with pagination (protected route)
+router.get('/', authMiddleware, async (req, res) => {
   try {
     // Extract page and limit from query parameters (with defaults)
     const page = parseInt(req.query.page) || 1;
@@ -30,8 +30,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET a single event by ID
-router.get('/:id', async (req, res) => {
+// GET a single event by ID (protected route)
+router.get('/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query('SELECT * FROM events WHERE id = $1', [id]);

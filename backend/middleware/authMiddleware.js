@@ -1,22 +1,38 @@
 const jwt = require('jsonwebtoken');
 
+// Auth Middleware to protect routes
 const authMiddleware = (req, res, next) => {
-  // Get the token from the Authorization header
-  const token = req.header('Authorization') && req.header('Authorization').replace('Bearer ', '');
+  const token = req.header('Authorization')?.replace('Bearer ', ''); // Extract token from the Authorization header
 
+  // If no token is provided
   if (!token) {
     return res.status(401).json({ error: 'No token, authorization denied' });
   }
 
   try {
-    // Verify the token and extract the user ID
+    // Verify token and decode user data
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.userId; // Add user ID to the request object
-    next(); // Proceed to the next middleware/route
+
+    // Attach the decoded user ID to the request object
+    req.user = decoded.userId;
+
+    // Allow the request to proceed to the next middleware or route handler
+    next();
   } catch (error) {
-    console.error('Token verification failed:', error);
-    res.status(401).json({ error: 'Token is not valid' });
+    console.error('Error verifying token:', error);
+    res.status(401).json({ error: 'Token is not valid or expired' });
   }
 };
 
 module.exports = authMiddleware;
+
+
+
+
+
+
+
+
+
+
+
