@@ -1,51 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - Campus Event Management System</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - CEMS</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header>
-    <h1>Register for CEMS</h1>
+    <h1>Campus Event Management System</h1>
   </header>
 
-  <div id="register-form-container">
-    <form id="register-form">
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
+  <main>
+    <section class="form-section">
+      <h2>Register</h2>
+      <form id="register-form">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
 
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
 
-      <button type="submit">Register</button>
-    </form>
-  </div>
+        <button type="submit">Register</button>
+      </form>
+
+      <p>Already have an account? <a href="login.html">Login here</a>.</p>
+      <p id="success-message" class="success" style="display:none;"></p>
+      <p id="error-message" class="error" style="display:none;"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2024 Campus Event Management System</p>
+  </footer>
 
   <script>
     document.getElementById('register-form').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const registerData = {
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value
-      };
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
 
       fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(registerData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       })
       .then(response => response.json())
       .then(data => {
-        if (data.message) {
-          alert('Registration successful! Please log in.');
-          window.location.href = 'login.html'; // Redirect to the login page
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+
+        if (data.message && data.user) {
+          successMessage.textContent = 'Registration successful! You can now log in.';
+          successMessage.style.display = 'block';
+          errorMessage.style.display = 'none';
         } else {
-          alert(data.error);
+          errorMessage.textContent = data.error || 'Registration failed, please try again.';
+          errorMessage.style.display = 'block';
+          successMessage.style.display = 'none';
         }
       })
       .catch(error => console.error('Error registering:', error));

@@ -1,186 +1,105 @@
-/* Global Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Header Section */
-  h1, h2, h3 {
-    text-align: center;
-    color: #333;
-  }
-  
-  /* Event List Section */
-  #event-details {
-    padding: 20px;
-    margin-top: 20px;
-  }
-  
-  #event-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  /* Event Card */
-  .event {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 250px;
-    padding: 15px;
-    text-align: center;
-  }
-  
-  .event h2 {
-    font-size: 1.5em;
-    margin-bottom: 10px;
-  }
-  
-  .event p {
-    font-size: 1em;
-    margin: 5px 0;
-  }
-  
-  .event button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    margin: 5px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  
-  .event button:hover {
-    background-color: #45a049;
-  }
-  
-  .event button:active {
-    background-color: #398b35;
-  }
-  
-  /* Form Styling */
-  #new-event-form-container {
-    width: 80%;
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-top: 30px;
-  }
-  
-  #new-event-form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  #new-event-form label {
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  #new-event-form input, 
-  #new-event-form textarea, 
-  #new-event-form button {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-  }
-  
-  #new-event-form button {
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer;
-    border: none;
-  }
-  
-  #new-event-form button:hover {
-    background-color: #45a049;
-  }
-  
-  /* Styling for Event Form Inputs */
-  #new-event-form input[type="date"] {
-    cursor: pointer;
-  }
-  
-  /* Alert and Error Messages */
-  .error-message {
-    color: red;
-    font-size: 14px;
-    text-align: center;
-    margin-top: 20px;
-  }
-  
-  /* Modal Styles (Optional if you want confirmation modals) */
-  .modal {
-    display: none; /* Hidden by default */
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0, 0, 0); /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4); /* Modal background */
-    padding-top: 60px;
-  }
-  
-  .modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 400px;
-  }
-  
-  .modal-header {
-    font-size: 18px;
-  }
-  
-  .modal-footer {
-    text-align: right;
-  }
-  
-  .modal-footer button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 8px 15px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-  }
-  
-  .modal-footer button:hover {
-    background-color: #45a049;
-  }
-  
-  /* For smaller screens (Responsive Design) */
-  @media (max-width: 768px) {
-    #event-list {
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .event {
-      width: 90%;
-      max-width: 400px;
-    }
-  
-    #new-event-form-container {
-      width: 90%;
-    }
-  }
-  
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f4f4f4;
+  color: #333;
+}
+
+header {
+  background: #283593;
+  color: #fff;
+  padding: 1rem;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+nav {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+main {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 5px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin: 0.5rem 0 0.2rem;
+}
+
+form input, form textarea {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+form button {
+  margin-top: 1rem;
+  padding: 0.7rem;
+  background: #283593;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background: #3949ab;
+}
+
+button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #283593;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3949ab;
+}
+
+.error {
+  color: #d32f2f;
+  margin-top: 1rem;
+}
+
+.success {
+  color: #388e3c;
+  margin-top: 1rem;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: #eceff1;
+  margin-top: 2rem;
+}
+
+.form-section {
+  margin: 2rem auto;
+}
+
+a {
+  color: #283593;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

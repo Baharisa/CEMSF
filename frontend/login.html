@@ -1,63 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Campus Event Management System</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - CEMS</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header>
-    <h1>Login to CEMS</h1>
+    <h1>Campus Event Management System</h1>
   </header>
 
-  <div id="login-form-container">
-    <form id="login-form">
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
+  <main>
+    <section class="form-section">
+      <h2>Login</h2>
+      <form id="login-form">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
 
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
 
-      <button type="submit">Login</button>
-    </form>
-  </div>
+        <button type="submit">Login</button>
+      </form>
+
+      <p>Don't have an account? <a href="register.html">Register here</a>.</p>
+      <p id="error-message" class="error" style="display:none;"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2024 Campus Event Management System</p>
+  </footer>
 
   <script>
-    // Listen for the form submission event
     document.getElementById('login-form').addEventListener('submit', function(e) {
-      e.preventDefault();  // Prevent default form submission
+      e.preventDefault();
 
-      // Get email and password from the form
-      const loginData = {
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value
-      };
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-      // Send login request to the server
       fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json' // Set the content type to JSON
-        },
-        body: JSON.stringify(loginData) // Send the login data as JSON
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       })
-      .then(response => response.json())  // Parse the response as JSON
+      .then(response => response.json())
       .then(data => {
+        const errorMessage = document.getElementById('error-message');
+
         if (data.token) {
-          // Store the JWT token in localStorage
           localStorage.setItem('token', data.token);
-          // Redirect to events page
-          window.location.href = 'events.html';
+          window.location.href = 'index.html';
         } else {
-          // Show error if no token is returned
-          alert(data.error);
+          errorMessage.textContent = data.error || 'Login failed, please try again.';
+          errorMessage.style.display = 'block';
         }
       })
-      .catch(error => {
-        // Catch any errors that occur during the fetch process
-        console.error('Error logging in:', error);
-      });
+      .catch(error => console.error('Error logging in:', error));
     });
   </script>
 </body>

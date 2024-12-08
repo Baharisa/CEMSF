@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const eventRoutes = require('./routes/eventRoutes'); // Import event routes
-const authRoutes = require('./routes/authRoutes'); // Import authentication routes
-const authMiddleware = require('./middleware/authMiddleware'); // Import the authentication middleware
+const authRoutes = require('./routes/authRoutes');   // Import authentication routes
+const authMiddleware = require('./middleware/authMiddleware'); // Import authentication middleware
 
 // Load environment variables from .env file
 dotenv.config();
@@ -15,16 +15,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Test route
+// Test route to verify server is running
 app.get('/', (req, res) => {
   res.send('CEMS Backend is running!');
 });
 
 // Authentication routes for login and register
-app.use('/api/auth', authRoutes); // Use authRoutes for /api/auth
+app.use('/api/auth', authRoutes);
 
-// Event routes (protected by JWT)
-app.use('/api/events', authMiddleware, eventRoutes); // Use eventRoutes for /api/events, protected by authMiddleware
+// Protected event routes 
+// Applying authMiddleware here means all routes in eventRoutes require a valid token
+app.use('/api/events', authMiddleware, eventRoutes);
 
 // Start the server on the specified port
 const PORT = process.env.PORT || 5000;

@@ -1,17 +1,21 @@
+// backend/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const pool = require('../config/db'); // Import PostgreSQL connection pool
+const pool = require('../config/db'); // PostgreSQL connection pool
 
 // Register a new user
 router.post('/register', async (req, res) => {
   const { email, password } = req.body;
 
-  // Check if the user already exists
-  try {
-    const checkUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
 
+  try {
+    // Check if user already exists
+    const checkUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (checkUser.rows.length > 0) {
       return res.status(400).json({ error: 'User already exists' });
     }
@@ -19,9 +23,9 @@ router.post('/register', async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert the new user into the database
+    // Insert the new user
     const result = await pool.query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *',
+      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email',
       [email, hashedPassword]
     );
 
@@ -36,25 +40,27 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  try {
-    // Find the user by email
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
 
+  try {
+    // Check if user exists
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length === 0) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
     const user = result.rows[0];
 
-    // Compare the password with the stored hash
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    // Generate JWT
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
     res.json({ message: 'Login successful', token });
   } catch (error) {
     console.error('Error during login:', error);
