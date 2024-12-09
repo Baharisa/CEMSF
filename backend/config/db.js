@@ -1,4 +1,3 @@
-// backend/config/db.js
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
 
@@ -13,6 +12,16 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
+
+// Test database connection to ensure it's successful
+pool.connect()
+  .then(() => {
+    console.log('Database connected successfully');
+  })
+  .catch(err => {
+    console.error('Database connection error:', err);
+    process.exit(1);  // Exit the app if database connection fails
+  });
 
 // Export the pool to use it in routes
 module.exports = pool;

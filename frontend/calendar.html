@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <link rel="stylesheet" href="css/styles.css" /> <!-- Link to your existing CSS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        .day {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 100px;
+            position: relative;
+            box-sizing: border-box;
+        }
+        .event {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Event Calendar</h1>
+        <nav>
+            <button onclick="window.location.href='events.html'">Back to Events</button>
+            <button id="logout-button">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <div>
+            <button id="prev-month">Previous</button>
+            <span id="month-display"></span>
+            <button id="next-month">Next</button>
+        </div>
+        <div id="calendar"></div>
+    </main>
+
+    <footer>
+        <p>© 2024 Campus Event Management System</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const token = localStorage.getItem('token'); // Ensure your token is stored in localStorage
+            const calendarElement = document.getElementById('calendar');
+            const monthDisplay = document.getElementById('month-display');
+            let currentMonth = moment(); // Start with the current month
+
+            // Fetch events for the current month
+            function fetchEvents(month) {
+                fetch(`http://localhost:5000/api/events?page=1&limit=100`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then(response => response.json())
+                .then(events => {
+                    displayCalendar(events, month);
+                })
+                .catch(error => console.error('Error fetching events:', error));
+            }
+
+            // Display the calendar
+            function displayCalendar(events, month) {
+                calendarElement.innerHTML = ''; // Clear previous calendar
+                monthDisplay.textContent = month.format('MMMM YYYY'); // Update month display
+
+                const daysInMonth = month.daysInMonth();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayDate = month.date(day);
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'day';
+                    dayElement.innerHTML = `<strong>${dayDate.format('ddd')}</strong> ${day}`;
+                    
+                    // Filter events for the current day
+                    const dayEvents = events.filter(event => moment(event.date, 'MM/DD/YYYY').isSame(dayDate, 'day'));
+                    dayEvents.forEach(event => {
+                        const eventElement = document.createElement('div');
+                        eventElement.className = 'event';
+                        eventElement.innerText = event.title; // Show event title only
+
+                        // Add click event to redirect to event signup page
+                        eventElement.addEventListener('click', function() {
+                            // Redirect to event signup page with event ID as a query parameter
+                            window.location.href = `event-signup.html?eventId=${event.id}`;
+                        });
+
+                        // Add event to the day element
+                        dayElement.appendChild(eventElement);
+                    });
+
+                    calendarElement.appendChild(dayElement);
+                }
+            }
+
+            // Handle month navigation
+            document.getElementById('prev-month').addEventListener('click', function() {
+                currentMonth.subtract(1, 'months');
+                fetchEvents(currentMonth);
+            });
+
+            document.getElementById('next-month').addEventListener('click', function() {
+                currentMonth.add(1, 'months');
+                fetchEvents(currentMonth);
+            });
+
+            // Initialize the calendar
+            fetchEvents(currentMonth);
+        });
+    </script>
+</body>
+</html>

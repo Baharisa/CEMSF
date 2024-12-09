@@ -5,16 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Campus Event Management System (CEMS)</title>
   <link rel="stylesheet" href="css/styles.css" />
-  <!-- Include moment.js -->
   <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+      background: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    nav {
+      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    nav button {
+      background: #ffffff;
+      color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    nav button:hover {
+      background: #e0e0e0;
+    }
+    main {
+      padding: 20px;
+      text-align: center;
+    }
+    #info-section {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    footer {
+      text-align: center;
+      padding: 10px;
+      background: #007BFF;
+      color: white;
+      position: relative;
+      bottom: 0;
+      width: 100%;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>Campus Event Management System</h1>
     <nav>
+      <button onclick="window.location.href='index.html'">Home</button>
+      <button onclick="window.location.href='calendar.html'">Calendar</button>
+      <button onclick="window.location.href='events.html'">View Events</button>
       <button onclick="window.location.href='login.html'">Login</button>
       <button onclick="window.location.href='register.html'">Register</button>
-      <button onclick="window.location.href='events.html'">View Events</button>
       <button id="logout-button" style="display:none;">Logout</button>
     </nav>
   </header>
@@ -23,7 +76,7 @@
     <section id="info-section">
       <h2>Welcome to CEMS</h2>
       <p>
-        This is a platform for managing and viewing campus events.  
+        This platform allows you to manage and view campus events.  
         Please log in or register to access event details and administrative functions.
       </p>
       <p id="logged-out-message" style="display:none;">
@@ -37,14 +90,12 @@
   </footer>
 
   <script>
-    // Basic script to show/hide buttons based on token presence
     document.addEventListener('DOMContentLoaded', function() {
       const token = localStorage.getItem('token');
       const logoutButton = document.getElementById('logout-button');
       const loggedOutMessage = document.getElementById('logged-out-message');
 
       if (token) {
-        // If logged in, show logout button and hide logged-out message
         logoutButton.style.display = 'inline-block';
         loggedOutMessage.style.display = 'none';
         logoutButton.addEventListener('click', function() {
@@ -52,7 +103,6 @@
           window.location.reload();
         });
       } else {
-        // If no token, show the logged-out message
         loggedOutMessage.style.display = 'block';
       }
     });

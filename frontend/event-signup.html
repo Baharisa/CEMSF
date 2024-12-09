@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Signup</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <style>
+        .message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Register for Event</h1>
+        <nav>
+            <button onclick="window.location.href='events.html'">Back to Events</button>
+            <button id="logout-button">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <div id="event-details"></div>
+        <form id="registration-form">
+            <h3>Register Now</h3>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required />
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required />
+
+            <button type="submit">Register</button>
+        </form>
+
+        <div id="success-message" class="message" style="display: none;"></div>
+        <div id="error-message" class="error" style="display: none;"></div>
+    </main>
+
+    <footer>
+        <p>© 2024 Campus Event Management System</p>
+    </footer>
+
+    <script>
+        // Extract event ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('eventId');
+        const token = localStorage.getItem('token'); // Ensure the token is stored in localStorage
+
+        // Log the eventId to verify it is being set correctly
+        console.log('Event ID:', eventId);
+
+        // Fetch event details
+        fetch(`http://localhost:5000/api/events/${eventId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            console.log('Event fetch response status:', response.status); // Log response status
+            return response.json();
+        })
+        .then(event => {
+            document.getElementById('event-details').innerText = `Event: ${event.title}`; // Display event title
+        })
+        .catch(error => console.error('Error fetching event details:', error));
+
+        // Registration form submission
+        document.getElementById('registration-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value.trim(); // Trim whitespace
+            const email = document.getElementById('email').value.trim(); // Trim whitespace
+
+            // Log the registration data
+            console.log('Registering with:', { name, email, eventId });
+
+            // Check if values are empty
+            if (!name || !email || !eventId) {
+                console.error('Missing required fields:', { name, email, eventId });
+                displayErrorMessage("Name, Email, and Event ID are required.");
+                return; // Exit the function if any field is missing
+            }
+
+            // Register user for the event
+            fetch(`http://localhost:5000/api/auth/register-event`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Include token if authentication is needed
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, eventId })
+            })
+            .then(response => {
+                console.log('Registration response status:', response.status); // Log response status
+                return response.json();
+            })
+            .then(data => {
+                console.log('Registration response data:', data); // Log response data
+                if (data.message) {
+                    displaySuccessMessage(data.message);
+                    document.getElementById('error-message').style.display = 'none'; // Hide error message
+                } else {
+                    throw new Error(data.error || 'Registration failed');
+                }
+            })
+            .catch(error => {
+                console.error('Registration error:', error); // Log the error
+                displayErrorMessage("Registration failed. Please try again.");
+            });
+        });
+
+        function displaySuccessMessage(message) {
+            const successMessageDiv = document.getElementById('success-message');
+            successMessageDiv.innerText = message;
+            successMessageDiv.style.display = 'block';
+        }
+
+        function displayErrorMessage(message) {
+            const errorMessageDiv = document.getElementById('error-message');
+            errorMessageDiv.innerText = message;
+            errorMessageDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

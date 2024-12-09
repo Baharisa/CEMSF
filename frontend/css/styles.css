@@ -103,3 +103,26 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.day {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.event-day {
+  background-color: #ffeb3b; /* Highlight color for days with events */
+}
+
+.event {
+  background-color: #e0f7fa;
+  margin: 5px 0;
+  padding: 5px;
+}

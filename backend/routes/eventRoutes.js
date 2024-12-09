@@ -1,4 +1,3 @@
-// backend/routes/eventRoutes.js
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
@@ -17,7 +16,6 @@ router.get('/', authMiddleware, async (req, res) => {
       [limit, offset]
     );
 
-    // Format dates as MM/DD/YYYY
     result.rows.forEach(event => {
       event.date = moment(event.date).format('MM/DD/YYYY');
     });
@@ -29,33 +27,17 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-// 🟢 GET a single event by ID (Protected)
-router.get('/:id', authMiddleware, async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await pool.query('SELECT * FROM events WHERE id = $1', [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Event not found' });
-    }
-
-    result.rows[0].date = moment(result.rows[0].date).format('MM/DD/YYYY');
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error('Error fetching event:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 // 🟢 POST a new event (Protected)
 router.post('/', authMiddleware, async (req, res) => {
   const { title, date, description, location } = req.body;
 
-  // Check for missing fields
+  // Validate required fields
   if (!title || !date || !location) {
     return res.status(400).json({ error: 'Title, Date, and Location are required' });
   }
 
   try {
+    // Insert new event into the database
     const result = await pool.query(
       'INSERT INTO events (title, date, description, location) VALUES ($1, $2, $3, $4) RETURNING *',
       [title, date, description, location]
@@ -69,12 +51,11 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// 🟢 PUT (Update) an event by ID (Protected)
+// 🟢 UPDATE an existing event (Protected)
 router.put('/:id', authMiddleware, async (req, res) => {
-  const { id } = req.params;
   const { title, date, description, location } = req.body;
+  const eventId = req.params.id;
 
-  // Check for missing fields
   if (!title || !date || !location) {
     return res.status(400).json({ error: 'Title, Date, and Location are required' });
   }
@@ -82,10 +63,10 @@ router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
       'UPDATE events SET title = $1, date = $2, description = $3, location = $4 WHERE id = $5 RETURNING *',
-      [title, date, description, location, id]
+      [title, date, description, location, eventId]
     );
 
-    if (result.rows.length === 0) {
+    if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Event not found' });
     }
 
@@ -97,19 +78,42 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// 🟢 DELETE an event by ID (Protected)
+// 🟢 DELETE an event (Protected)
 router.delete('/:id', authMiddleware, async (req, res) => {
-  const { id } = req.params;
+  const eventId = req.params.id;
 
   try {
-    const result = await pool.query('DELETE FROM events WHERE id = $1 RETURNING *', [id]);
-    if (result.rows.length === 0) {
+    const result = await pool.query(
+      'DELETE FROM events WHERE id = $1 RETURNING *',
+      [eventId]
+    );
+
+    if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    res.json({ message: 'Event deleted successfully', event: result.rows[0] });
+    res.status(200).json({ message: 'Event deleted successfully' });
   } catch (error) {
     console.error('Error deleting event:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// 🟢 Register for an event (Protected)
+router.post('/register', authMiddleware, async (req, res) => {
+  const { name, email, eventId } = req.body;
+
+  // Validate required fields
+  if (!name || !email || !eventId) {
+    return res.status(400).json({ error: 'Name, Email, and Event ID are required' });
+  }
+
+  try {
+    // Save registration to the database
+    await pool.query('INSERT INTO registrations (name, email, event_id) VALUES ($1, $2, $3)', [name, email, eventId]);
+    res.status(201).json({ message: 'Registration successful' });
+  } catch (error) {
+    console.error('Error registering for event:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
