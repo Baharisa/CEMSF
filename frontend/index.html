@@ -2,111 +2,214 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Campus Event Management System (CEMS)</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    * {
       margin: 0;
       padding: 0;
-      background-color: #f4f4f4;
+      box-sizing: border-box;
     }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
     header {
-      background: #007BFF;
-      color: white;
-      padding: 10px 20px;
+      background: #1e3a8a;
+      color: #fff;
       text-align: center;
+      padding: 2rem 0;
     }
+
+    header h1 {
+      font-size: 2.5rem;
+    }
+
     nav {
-      margin: 20px 0;
       display: flex;
       justify-content: center;
-      gap: 10px;
+      background-color: #1e3a8a;
+      padding: 1rem 0;
     }
+
     nav button {
-      background: #ffffff;
-      color: #007BFF;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 15px;
+      background: #1e3a8a;
+      color: #fff;
+      border: 2px solid #fff;
+      border-radius: 25px;
+      padding: 10px 20px;
+      margin: 0 10px;
       cursor: pointer;
-      transition: background 0.3s;
+      font-size: 1rem;
+      transition: all 0.3s ease;
     }
+
     nav button:hover {
-      background: #e0e0e0;
+      background: #3b82f6;
+      color: #fff;
     }
+
     main {
-      padding: 20px;
-      text-align: center;
+      padding: 2rem 20px;
     }
-    #info-section {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 8px;
+
+    #hero-section {
+      background: #f9fafb;
+      padding: 3rem 20px;
+      text-align: center;
+      border-radius: 10px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #hero-section h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    #hero-section p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    #hero-section .cta-button {
+      background: #1e3a8a;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      padding: 15px 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #hero-section .cta-button:hover {
+      background: #3b82f6;
+    }
+
+    .event-preview {
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .event-card {
+      background: #fff;
+      border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    footer {
+      padding: 20px;
+      max-width: 300px;
       text-align: center;
-      padding: 10px;
-      background: #007BFF;
-      color: white;
-      position: relative;
-      bottom: 0;
-      width: 100%;
-      margin-top: 20px;
+    }
+
+    .event-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .event-card p {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .event-card .event-date {
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    footer {
+      background: #1e3a8a;
+      color: #fff;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    footer p {
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Campus Event Management System</h1>
-    <nav>
-      <button onclick="window.location.href='index.html'">Home</button>
-      <button onclick="window.location.href='calendar.html'">Calendar</button>
-      <button onclick="window.location.href='events.html'">View Events</button>
-      <button onclick="window.location.href='login.html'">Login</button>
-      <button onclick="window.location.href='register.html'">Register</button>
-      <button onclick="window.location.href='dashboard.html'">Dashboard</button>
-      <button id="logout-button" style="display:none;">Logout</button>
-    </nav>
-  </header>
-  
-  <main>
-    <section id="info-section">
-      <h2>Welcome to CEMS</h2>
-      <p>
-        This platform allows you to manage and view campus events.  
-        Please log in or register to access event details and administrative functions.
-      </p>
-      <p id="logged-out-message" style="display:none;">
-        You are currently not logged in. Please log in to view and manage events.
-      </p>
-    </section>
-  </main>
 
-  <footer>
-    <p>© 2024 Campus Event Management System</p>
-  </footer>
+<header>
+  <h1>Campus Event Management System</h1>
+  <nav>
+    <button onclick="window.location.href='index.html'">Home</button>
+    <button onclick="window.location.href='calendar.html'">Calendar</button>
+    <button onclick="window.location.href='events.html'">View Events</button>
+    <button onclick="window.location.href='login.html'">Login</button>
+    <button onclick="window.location.href='register.html'">Register</button>
+    <button onclick="window.location.href='dashboard.html'">Dashboard</button>
+  </nav>
+</header>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const token = localStorage.getItem('token');
-      const logoutButton = document.getElementById('logout-button');
-      const loggedOutMessage = document.getElementById('logged-out-message');
+<main>
 
-      if (token) {
-        logoutButton.style.display = 'inline-block';
-        loggedOutMessage.style.display = 'none';
-        logoutButton.addEventListener('click', function() {
-          localStorage.removeItem('token');
-          window.location.reload();
-        });
-      } else {
-        loggedOutMessage.style.display = 'block';
-      }
-    });
-  </script>
+  <section id="hero-section">
+    <h2>Welcome to the Campus Event Management System (CEMS)</h2>
+    <p>Discover, manage, and participate in campus events with ease. Sign up today to gain access to the full event experience.</p>
+    <button class="cta-button" onclick="window.location.href='register.html'">Get Started</button>
+  </section>
+
+  <section id="event-previews">
+    <h2>Upcoming Events</h2>
+    <div class="event-preview">
+      <div class="event-card">
+        <h3>Career Fair 2024</h3>
+        <p>Meet top employers and get your dream job. Don't miss out!</p>
+        <p class="event-date">March 10, 2024</p>
+      </div>
+
+      <div class="event-card">
+        <h3>Spring Music Festival</h3>
+        <p>Enjoy live music and food trucks on campus!</p>
+        <p class="event-date">April 15, 2024</p>
+      </div>
+
+      <div class="event-card">
+        <h3>Guest Lecture: Tech Trends</h3>
+        <p>Learn about emerging trends in technology with our guest speaker.</p>
+        <p class="event-date">May 5, 2024</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>© 2024 Campus Event Management System. All rights reserved.</p>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    const navButtons = document.querySelectorAll('nav button');
+    const ctaButton = document.querySelector('.cta-button');
+
+    if (token) {
+      const logoutButton = document.createElement('button');
+      logoutButton.textContent = 'Logout';
+      logoutButton.style.backgroundColor = '#ef4444';
+      logoutButton.style.borderColor = '#ef4444';
+      logoutButton.style.marginLeft = '10px';
+      logoutButton.onclick = () => {
+        localStorage.removeItem('token');
+        window.location.reload();
+      };
+      document.querySelector('nav').appendChild(logoutButton);
+    } else {
+      ctaButton.textContent = 'Register Now';
+    }
+  });
+</script>
+
 </body>
 </html>

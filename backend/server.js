@@ -1,10 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const eventRoutes = require('./routes/eventRoutes'); // Import event routes
-const authRoutes = require('./routes/authRoutes');   // Import authentication routes
-const authMiddleware = require('./middleware/authMiddleware'); // Import authentication middleware
-const { Pool } = require('pg'); // Import PostgreSQL client
+const { Pool } = require('pg');
+
+// Import routes
+const eventRoutes = require('./routes/eventRoutes'); // Event-related routes
+const authRoutes = require('./routes/authRoutes');   // Authentication routes
+const authMiddleware = require('./middleware/authMiddleware'); // Authentication middleware
 
 // Load environment variables from .env file
 dotenv.config();
@@ -30,21 +32,20 @@ app.get('/', (req, res) => {
   res.send('CEMS Backend is running!');
 });
 
-// Authentication routes for login and register
+// Authentication routes for login and registration
 app.use('/api/auth', authRoutes);
 
-// Protected event routes 
-// Applying authMiddleware here means all routes in eventRoutes require a valid token
+// Protected event routes (requires valid token)
 app.use('/api/events', authMiddleware, eventRoutes);
 
-// Route to get events by date (if needed)
+// Route to get events by date
 app.get('/api/events/date', async (req, res) => {
   const { date } = req.query;
   try {
     const result = await pool.query('SELECT * FROM events WHERE date = $1', [date]);
     res.json(result.rows);
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching events by date:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -59,7 +60,7 @@ app.post('/api/events', async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error(error);
+    console.error('Error creating event:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -74,7 +75,25 @@ app.delete('/api/events/:id', async (req, res) => {
     }
     res.status(204).send();
   } catch (error) {
-    console.error(error);
+    console.error('Error deleting event:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// 🟢 Route to fetch dashboard statistics
+app.get('/api/dashboard/statistics', authMiddleware, async (req, res) => {
+  try {
+    const totalEvents = await pool.query('SELECT COUNT(*) FROM events');
+    const upcomingEvents = await pool.query('SELECT COUNT(*) FROM events WHERE date >= NOW()');
+    const totalUsers = await pool.query('SELECT COUNT(*) FROM users');
+
+    res.json({
+      totalEvents: parseInt(totalEvents.rows[0].count, 10),
+      upcomingEvents: parseInt(upcomingEvents.rows[0].count, 10),
+      totalUsers: parseInt(totalUsers.rows[0].count, 10),
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard statistics:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

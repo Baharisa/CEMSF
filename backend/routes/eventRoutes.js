@@ -97,4 +97,33 @@ router.post('/register', authMiddleware, catchAsync(async (req, res) => {
     res.status(201).json({ message: 'Registration successful' });
 }));
 
+// 🟢 GET event details by ID (Protected)
+router.get('/:id', authMiddleware, catchAsync(async (req, res) => {
+    const eventId = req.params.id;
+
+    const result = await pool.query(
+        'SELECT * FROM events WHERE id = $1',
+        [eventId]
+    );
+
+    if (result.rowCount === 0) {
+        return res.status(404).json({ error: 'Event not found' });
+    }
+
+    result.rows[0].date = moment(result.rows[0].date).format('MM/DD/YYYY');
+    res.json(result.rows[0]);
+}));
+
+// 🟢 GET event registrations by event ID (Protected)
+router.get('/:id/registrations', authMiddleware, catchAsync(async (req, res) => {
+    const eventId = req.params.id;
+
+    const result = await pool.query(
+        'SELECT name, email FROM registrations WHERE event_id = $1',
+        [eventId]
+    );
+
+    res.json(result.rows);
+}));
+
 module.exports = router;

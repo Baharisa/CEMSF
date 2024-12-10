@@ -1,243 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Campus Event Management System (CEMS)</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    * {
       margin: 0;
       padding: 0;
-      background-color: #f4f4f4;
+      box-sizing: border-box;
     }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
     header {
-      background: #007BFF;
+      background: #1e3a8a;
       color: white;
-      padding: 10px 20px;
       text-align: center;
+      padding: 2rem 0;
     }
+
+    header h1 {
+      font-size: 2.2rem;
+    }
+
     nav {
-      margin: 20px 0;
       display: flex;
       justify-content: center;
-      gap: 10px;
+      background-color: #1e3a8a;
+      padding: 1rem 0;
     }
+
     nav button {
-      background: #ffffff;
-      color: #007BFF;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 15px;
+      background: #1e3a8a;
+      color: #fff;
+      border: 2px solid #fff;
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.3s ease;
+      margin: 0 10px;
     }
+
     nav button:hover {
-      background: #e0e0e0;
+      background: #3b82f6;
     }
+
     main {
+      padding: 2rem 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .dashboard-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       padding: 20px;
       text-align: center;
+      width: 30%;
     }
+
+    .stat-card h3 {
+      font-size: 1.5rem;
+    }
+
+    .stat-card p {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
     #event-list {
       background: #ffffff;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-top: 20px;
+      margin-bottom: 2rem;
     }
-    footer {
-      text-align: center;
-      padding: 10px;
-      background: #007BFF;
-      color: white;
-      position: relative;
-      bottom: 0;
-      width: 100%;
-      margin-top: 20px;
-    }
+
     .event {
-      margin: 10px 0;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .edit-btn {
-      background: #ffc107;
-      color: white;
-      border: none;
-      border-radius: 3px;
-      padding: 5px 10px;
-      cursor: pointer;
+
+    .event-info {
+      flex: 1;
     }
-    .delete-btn {
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 3px;
-      padding: 5px 10px;
-      cursor: pointer;
+
+    footer {
+      background: #1e3a8a;
+      color: #fff;
+      text-align: center;
+      padding: 20px 0;
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>Dashboard</h1>
-    <nav>
-      <button onclick="window.location.href='index.html'">Home</button>
-      <button onclick="window.location.href='calendar.html'">Calendar</button>
-      <button onclick="window.location.href='events.html'">Manage Events</button>
-      <button id="logout-button">Logout</button>
-    </nav>
-  </header>
 
-  <main>
-    <section id="event-list">
-      <h2>Your Events</h2>
-      <div id="no-token-message" style="display:none;">
-        <p>You are not logged in. Please <a href="login.html">log in</a> to view your events.</p>
-      </div>
-      <div id="events"></div>
-      <div id="pagination-controls"></div>
-    </section>
+<header>
+  <h1>Dashboard</h1>
+  <nav>
+    <button onclick="window.location.href='index.html'">Home</button>
+    <button onclick="window.location.href='calendar.html'">Calendar</button>
+    <button onclick="window.location.href='events.html'">Manage Events</button>
+    <button id="logout-button">Logout</button>
+  </nav>
+</header>
 
-    <section id="new-event-form-container" style="display:none;">
-      <h3>Create a New Event</h3>
-      <form id="new-event-form">
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" required />
+<main>
+  <section class="dashboard-stats">
+    <div class="stat-card">
+      <h3>Total Events</h3>
+      <p id="total-events">0</p>
+    </div>
+    <div class="stat-card">
+      <h3>Upcoming Events</h3>
+      <p id="upcoming-events">0</p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Users</h3>
+      <p id="total-users">0</p>
+    </div>
+  </section>
 
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required />
+  <section id="event-list">
+    <h2>Your Events</h2>
+    <div id="events"></div>
+  </section>
+</main>
 
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" required></textarea>
+<footer>
+  <p>© 2024 Campus Event Management System</p>
+</footer>
 
-        <label for="location">Location:</label>
-        <input type="text" id="location" name="location" required />
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    const eventsContainer = document.getElementById('events');
+    const totalEvents = document.getElementById('total-events');
+    const upcomingEvents = document.getElementById('upcoming-events');
+    const totalUsers = document.getElementById('total-users');
 
-        <button type="submit">Create Event</button>
-      </form>
-    </section>
-  </main>
+    // Redirect if not authenticated
+    if (!token) {
+      window.location.href = 'login.html';
+      return;
+    }
 
-  <footer>
-    <p>© 2024 Campus Event Management System</p>
-  </footer>
+    // Fetch statistics
+    function fetchDashboardStats() {
+      fetch('http://localhost:5000/api/dashboard/statistics', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(response => response.json())
+      .then(data => {
+        totalEvents.textContent = data.totalEvents || 0;
+        upcomingEvents.textContent = data.upcomingEvents || 0;
+        totalUsers.textContent = data.totalUsers || 0;
+      })
+      .catch(error => console.error('Error fetching statistics:', error));
+    }
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const token = localStorage.getItem('token');
-      const logoutButton = document.getElementById('logout-button');
-      const noTokenMessage = document.getElementById('no-token-message');
-      const eventsContainer = document.getElementById('events');
-      const newEventFormContainer = document.getElementById('new-event-form-container');
-      const newEventForm = document.getElementById('new-event-form');
-
-      if (token) {
-        logoutButton.style.display = 'inline-block';
-        noTokenMessage.style.display = 'none';
-        logoutButton.addEventListener('click', function() {
-          localStorage.removeItem('token');
-          window.location.reload();
-        });
-        fetchEvents();
-        newEventFormContainer.style.display = 'block'; // Show the event creation form
-      } else {
-        noTokenMessage.style.display = 'block';
-      }
-
-      function fetchEvents() {
-        fetch(`http://localhost:5000/api/events`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-        })
-        .then(response => response.json())
-        .then(events => {
-          displayEvents(events);
-        })
-        .catch(error => console.error('Error fetching events:', error));
-      }
-
-      function displayEvents(events) {
-        if (events.length === 0) {
-          eventsContainer.innerHTML = '<p>No events found.</p>';
-          return;
-        }
-        eventsContainer.innerHTML = ''; // Clear previous events
+    // Fetch user's events
+    function fetchEvents() {
+      fetch('http://localhost:5000/api/events?page=1&limit=5', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(response => response.json())
+      .then(events => {
+        eventsContainer.innerHTML = '';
         events.forEach(event => {
           const eventDiv = document.createElement('div');
-          eventDiv.className = 'event';
+          eventDiv.classList.add('event');
           eventDiv.innerHTML = `
-            <strong>${event.title}</strong><br>
-            ${moment(event.date).format('MMMM Do YYYY')}<br>
-            ${event.description}<br>
-            Location: ${event.location}<br>
-            <button class="edit-btn" onclick="editEvent('${event.id}')">Edit</button>
-            <button class="delete-btn" onclick="deleteEvent('${event.id}')">Delete</button>
+            <div class="event-info">
+              <h3>${event.title}</h3>
+              <p>Date: ${moment(event.date).format('MMMM Do YYYY')}</p>
+              <p>Location: ${event.location}</p>
+            </div>
           `;
           eventsContainer.appendChild(eventDiv);
         });
-      }
+      })
+      .catch(error => console.error('Error fetching events:', error));
+    }
 
-      newEventForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const eventData = {
-          title: newEventForm.title.value,
-          date: newEventForm.date.value,
-          description: newEventForm.description.value,
-          location: newEventForm.location.value
-        };
-        createEvent(eventData);
-      });
-
-      function createEvent(eventData) {
-        fetch(`http://localhost:5000/api/events`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(eventData)
-        })
-        .then(response => response.json())
-        .then(data => {
-          fetchEvents(); // Refresh the event list
-          newEventForm.reset(); // Reset the form
-        })
-        .catch(error => console.error('Error creating event:', error));
-      }
-
-      window.editEvent = function(eventId) {
-        // Code to edit the event (could open a modal or navigate to an edit page)
-        alert(`Edit functionality for event ID ${eventId} is not implemented yet.`);
-      };
-
-      window.deleteEvent = function(eventId) {
-        if (confirm('Are you sure you want to delete this event?')) {
-          fetch(`http://localhost:5000/api/events/${eventId}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          })
-          .then(response => {
-            if (response.ok) {
-              fetchEvents(); // Refresh the event list
-            } else {
-              console.error('Error deleting event');
-            }
-          })
-          .catch(error => console.error('Error deleting event:', error));
-        }
-      };
+    // Logout functionality
+    document.getElementById('logout-button').addEventListener('click', function() {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
     });
-  </script>
+
+    // Initial data load
+    fetchDashboardStats();
+    fetchEvents();
+  });
+</script>
+
 </body>
 </html>
