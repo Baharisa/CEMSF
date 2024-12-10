@@ -3,20 +3,15 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { Pool } = require('pg');
 
-// Import routes
-const eventRoutes = require('./routes/eventRoutes'); // Event-related routes
-const authRoutes = require('./routes/authRoutes');   // Authentication routes
-const authMiddleware = require('./middleware/authMiddleware'); // Authentication middleware
-
 // Load environment variables from .env file
 dotenv.config();
 
 // Initialize PostgreSQL connection pool
 const pool = new Pool({
-  user: process.env.DB_USER, // Your PostgreSQL username
+  user: process.env.DB_USER,
   host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME, // Your database name
-  password: process.env.DB_PASSWORD, // Your PostgreSQL password
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT || 5432,
 });
 
@@ -26,6 +21,12 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Import routes
+const eventRoutes = require('./routes/eventRoutes');
+const authRoutes = require('./routes/authRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const authMiddleware = require('./middleware/authMiddleware');
 
 // Test route to verify server is running
 app.get('/', (req, res) => {
@@ -38,8 +39,11 @@ app.use('/api/auth', authRoutes);
 // Protected event routes (requires valid token)
 app.use('/api/events', authMiddleware, eventRoutes);
 
-// Route to get events by date
-app.get('/api/events/date', async (req, res) => {
+// Dashboard routes (requires valid token)
+app.use('/api/dashboard', authMiddleware, dashboardRoutes);
+
+// 🟢 Route to get events by date
+app.get('/api/events/date', authMiddleware, async (req, res) => {
   const { date } = req.query;
   try {
     const result = await pool.query('SELECT * FROM events WHERE date = $1', [date]);
@@ -50,8 +54,8 @@ app.get('/api/events/date', async (req, res) => {
   }
 });
 
-// Route to create a new event
-app.post('/api/events', async (req, res) => {
+// 🟢 Route to create a new event
+app.post('/api/events', authMiddleware, async (req, res) => {
   const { title, date, description, location, userId } = req.body;
   try {
     const result = await pool.query(
@@ -65,8 +69,8 @@ app.post('/api/events', async (req, res) => {
   }
 });
 
-// Route to delete an event
-app.delete('/api/events/:id', async (req, res) => {
+// 🟢 Route to delete an event
+app.delete('/api/events/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query('DELETE FROM events WHERE id = $1 RETURNING *', [id]);
@@ -76,24 +80,6 @@ app.delete('/api/events/:id', async (req, res) => {
     res.status(204).send();
   } catch (error) {
     console.error('Error deleting event:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// 🟢 Route to fetch dashboard statistics
-app.get('/api/dashboard/statistics', authMiddleware, async (req, res) => {
-  try {
-    const totalEvents = await pool.query('SELECT COUNT(*) FROM events');
-    const upcomingEvents = await pool.query('SELECT COUNT(*) FROM events WHERE date >= NOW()');
-    const totalUsers = await pool.query('SELECT COUNT(*) FROM users');
-
-    res.json({
-      totalEvents: parseInt(totalEvents.rows[0].count, 10),
-      upcomingEvents: parseInt(upcomingEvents.rows[0].count, 10),
-      totalUsers: parseInt(totalUsers.rows[0].count, 10),
-    });
-  } catch (error) {
-    console.error('Error fetching dashboard statistics:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

@@ -157,27 +157,35 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('token');
-    const eventsContainer = document.getElementById('events');
     const totalEvents = document.getElementById('total-events');
     const upcomingEvents = document.getElementById('upcoming-events');
     const totalUsers = document.getElementById('total-users');
+    const eventsContainer = document.getElementById('events');
 
-    // Redirect if not authenticated
+    // Redirect to login page if not authenticated
     if (!token) {
       window.location.href = 'login.html';
       return;
     }
 
-    // Fetch statistics
+    // Logout functionality
+    document.getElementById('logout-button').addEventListener('click', function() {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    });
+
+    // Fetch dashboard statistics
     function fetchDashboardStats() {
       fetch('http://localhost:5000/api/dashboard/statistics', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       .then(response => response.json())
       .then(data => {
-        totalEvents.textContent = data.totalEvents || 0;
-        upcomingEvents.textContent = data.upcomingEvents || 0;
-        totalUsers.textContent = data.totalUsers || 0;
+        if (data) {
+          totalEvents.textContent = data.totalEvents ?? 0;
+          upcomingEvents.textContent = data.upcomingEvents ?? 0;
+          totalUsers.textContent = data.totalUsers ?? 0;
+        }
       })
       .catch(error => console.error('Error fetching statistics:', error));
     }
@@ -190,27 +198,25 @@
       .then(response => response.json())
       .then(events => {
         eventsContainer.innerHTML = '';
-        events.forEach(event => {
-          const eventDiv = document.createElement('div');
-          eventDiv.classList.add('event');
-          eventDiv.innerHTML = `
-            <div class="event-info">
-              <h3>${event.title}</h3>
-              <p>Date: ${moment(event.date).format('MMMM Do YYYY')}</p>
-              <p>Location: ${event.location}</p>
-            </div>
-          `;
-          eventsContainer.appendChild(eventDiv);
-        });
+        if (events && Array.isArray(events) && events.length > 0) {
+          events.forEach(event => {
+            const eventDiv = document.createElement('div');
+            eventDiv.classList.add('event');
+            eventDiv.innerHTML = `
+              <div class="event-info">
+                <h3>${event.title}</h3>
+                <p>Date: ${moment(event.date).format('MMMM Do YYYY')}</p>
+                <p>Location: ${event.location}</p>
+              </div>
+            `;
+            eventsContainer.appendChild(eventDiv);
+          });
+        } else {
+          eventsContainer.innerHTML = '<p>No events available.</p>';
+        }
       })
       .catch(error => console.error('Error fetching events:', error));
     }
-
-    // Logout functionality
-    document.getElementById('logout-button').addEventListener('click', function() {
-      localStorage.removeItem('token');
-      window.location.href = 'login.html';
-    });
 
     // Initial data load
     fetchDashboardStats();

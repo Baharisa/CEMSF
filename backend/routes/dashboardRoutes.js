@@ -3,6 +3,31 @@ const router = express.Router();
 const pool = require('../config/db');
 const authMiddleware = require('../middleware/authMiddleware');
 
+// 🟢 GET dashboard statistics (Protected)
+router.get('/statistics', authMiddleware, async (req, res) => {
+    try {
+        // Fetch total events, upcoming events, and total users in parallel for better performance
+        const totalEventsPromise = pool.query('SELECT COUNT(*) FROM events');
+        const upcomingEventsPromise = pool.query('SELECT COUNT(*) FROM events WHERE date >= NOW()');
+        const totalUsersPromise = pool.query('SELECT COUNT(*) FROM users');
+        
+        const [totalEventsResult, upcomingEventsResult, totalUsersResult] = await Promise.all([
+            totalEventsPromise,
+            upcomingEventsPromise,
+            totalUsersPromise
+        ]);
+
+        res.json({
+            totalEvents: parseInt(totalEventsResult.rows[0].count, 10),
+            upcomingEvents: parseInt(upcomingEventsResult.rows[0].count, 10),
+            totalUsers: parseInt(totalUsersResult.rows[0].count, 10),
+        });
+    } catch (error) {
+        console.error('Error fetching statistics:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // 🟢 GET user information (Protected)
 router.get('/user', authMiddleware, async (req, res) => {
     try {
@@ -27,31 +52,6 @@ router.get('/upcoming-events', authMiddleware, async (req, res) => {
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching upcoming events:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// 🟢 GET dashboard statistics (Protected)
-router.get('/statistics', authMiddleware, async (req, res) => {
-    try {
-        // Fetch total events, upcoming events, and total users in parallel for better performance
-        const totalEventsPromise = pool.query('SELECT COUNT(*) FROM events');
-        const upcomingEventsPromise = pool.query('SELECT COUNT(*) FROM events WHERE date >= NOW()');
-        const totalUsersPromise = pool.query('SELECT COUNT(*) FROM users');
-        
-        const [totalEventsResult, upcomingEventsResult, totalUsersResult] = await Promise.all([
-            totalEventsPromise,
-            upcomingEventsPromise,
-            totalUsersPromise
-        ]);
-
-        res.json({
-            totalEvents: parseInt(totalEventsResult.rows[0].count, 10),
-            upcomingEvents: parseInt(upcomingEventsResult.rows[0].count, 10),
-            totalUsers: parseInt(totalUsersResult.rows[0].count, 10),
-        });
-    } catch (error) {
-        console.error('Error fetching statistics:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
