@@ -9,172 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&display=swap" rel="stylesheet">
   <!-- Include moment.js for date formatting -->
   <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Nunito', sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
-    }
-
-    header {
-      background: #1e3a8a;
-      color: #fff;
-      text-align: center;
-      padding: 2rem 0;
-    }
-
-    header h1 {
-      font-size: 2.2rem;
-    }
-
-    nav {
-      display: flex;
-      justify-content: center;
-      background-color: #1e3a8a;
-      padding: 1rem 0;
-    }
-
-    nav button {
-      background: #1e3a8a;
-      color: #fff;
-      border: 2px solid #fff;
-      border-radius: 25px;
-      padding: 10px 20px;
-      margin: 0 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    nav button:hover {
-      background: #3b82f6;
-    }
-
-    main {
-      padding: 2rem 20px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    #event-details h2 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    #no-token-message {
-      text-align: center;
-      margin: 2rem 0;
-    }
-
-    #no-token-message p a {
-      color: #1e3a8a;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    #event-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .event-card {
-      background: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      transition: all 0.3s ease;
-    }
-
-    .event-card:hover {
-      transform: scale(1.02);
-    }
-
-    .event-card h3 {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
-    }
-
-    .event-card p {
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-    }
-
-    .event-card .event-date {
-      font-weight: bold;
-      color: #1e3a8a;
-    }
-
-    #pagination-controls {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    #new-event-form-container {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-top: 2rem;
-    }
-
-    #new-event-form-container h3 {
-      text-align: center;
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-
-    form label {
-      margin: 10px 0 5px;
-      font-weight: bold;
-    }
-
-    form input, form textarea {
-      padding: 12px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      margin-bottom: 10px;
-      font-size: 1rem;
-    }
-
-    form button {
-      background: #1e3a8a;
-      color: #fff;
-      border: none;
-      padding: 15px;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    form button:hover {
-      background: #3b82f6;
-    }
-
-    footer {
-      background: #1e3a8a;
-      color: #fff;
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    footer p {
-      font-size: 0.9rem;
-    }
-  </style>
 </head>
 
 <body>
@@ -224,7 +58,6 @@
   <p>© 2024 Campus Event Management System</p>
 </footer>
 
-<script src="js/scripts.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('token');
@@ -232,10 +65,12 @@
     const noTokenMessage = document.getElementById('no-token-message');
     const eventList = document.getElementById('event-list');
     const newEventFormContainer = document.getElementById('new-event-form-container');
+    const newEventForm = document.getElementById('new-event-form');
 
     if (token) {
       noTokenMessage.style.display = 'none';
       newEventFormContainer.style.display = 'block';
+      fetchEvents(); // Fetch events on page load
     } else {
       noTokenMessage.style.display = 'block';
       newEventFormContainer.style.display = 'none';
@@ -245,6 +80,123 @@
       localStorage.removeItem('token');
       window.location.reload();
     });
+
+    // Fetch events from backend
+    function fetchEvents() {
+      fetch('http://localhost:5000/api/events', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(events => {
+        eventList.innerHTML = '';
+        events.forEach(event => {
+          const eventCard = document.createElement('div');
+          eventCard.classList.add('event-card');
+          eventCard.innerHTML = `
+            <h3>${event.title}</h3>
+            <p class="event-date">Date: ${moment(event.date).format('MMMM Do YYYY')}</p>
+            <p>Location: ${event.location}</p>
+            <p>${event.description || ''}</p>
+            <button onclick="updateEvent(${event.id}, '${event.title}', '${event.date}', '${event.description}', '${event.location}')">Update</button>
+            <button onclick="confirmDelete(${event.id})">Delete</button>
+          `;
+          eventList.appendChild(eventCard);
+        });
+      })
+      .catch(error => console.error('Error fetching events:', error));
+    }
+
+    // Create a new event
+    newEventForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const newEvent = {
+        title: document.getElementById('title').value,
+        date: document.getElementById('date').value,
+        description: document.getElementById('description').value,
+        location: document.getElementById('location').value,
+      };
+
+      fetch('http://localhost:5000/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(newEvent)
+      })
+      .then(response => response.json())
+      .then(() => {
+        newEventForm.reset();
+        fetchEvents(); // Refresh events
+      })
+      .catch(error => console.error('Error creating event:', error));
+    });
+
+    // Delete an event with confirmation
+    window.confirmDelete = function(eventId) {
+      const confirmed = window.confirm('Are you sure you want to delete this event?');
+      if (confirmed) {
+        fetch(`http://localhost:5000/api/events/${eventId}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        .then(() => {
+          fetchEvents(); // Refresh events
+        })
+        .catch(error => console.error('Error deleting event:', error));
+      }
+    };
+
+    // Update an event with field selection
+    window.updateEvent = function(eventId, currentTitle, currentDate, currentDescription, currentLocation) {
+      const fieldToUpdate = prompt(
+        `Which field do you want to update? (title, date, description, location)`,
+        ''
+      );
+
+      if (!fieldToUpdate) return;
+
+      let newValue;
+      switch (fieldToUpdate.toLowerCase()) {
+        case 'title':
+          newValue = prompt('Enter new title:', currentTitle);
+          if (newValue) updateField(eventId, { title: newValue });
+          break;
+        case 'date':
+          newValue = prompt('Enter new date (YYYY-MM-DD):', currentDate);
+          if (newValue) updateField(eventId, { date: newValue });
+          break;
+        case 'description':
+          newValue = prompt('Enter new description:', currentDescription);
+          if (newValue) updateField(eventId, { description: newValue });
+          break;
+        case 'location':
+          newValue = prompt('Enter new location:', currentLocation);
+          if (newValue) updateField(eventId, { location: newValue });
+          break;
+        default:
+          alert('Invalid field selected!');
+      }
+    };
+
+    function updateField(eventId, updatedData) {
+      fetch(`http://localhost:5000/api/events/${eventId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedData)
+      })
+      .then(() => {
+        fetchEvents(); // Refresh events
+      })
+      .catch(error => console.error('Error updating event:', error));
+    }
   });
 </script>
 
