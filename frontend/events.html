@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&display=swap" rel="stylesheet">
-  <!-- Include moment.js for date formatting -->
   <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
 </head>
 
@@ -23,14 +22,16 @@
 </header>
 
 <main>
-
   <section id="event-details">
     <h2>Upcoming Events</h2>
     <div id="no-token-message" style="display:none;">
       <p>You are not logged in. Please <a href="login.html">log in</a> to view events.</p>
     </div>
     <div id="event-list"></div>
-    <div id="pagination-controls"></div>
+    <div id="pagination-controls" style="text-align: center; margin-top: 20px;">
+      <button id="prev-button" style="display:none;">Previous</button>
+      <button id="next-button" style="display:none;">Next</button>
+    </div>
   </section>
 
   <section id="new-event-form-container" style="display:none;">
@@ -51,7 +52,6 @@
       <button type="submit">Create Event</button>
     </form>
   </section>
-
 </main>
 
 <footer>
@@ -59,31 +59,36 @@
 </footer>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const token = localStorage.getItem('token');
     const logoutButton = document.getElementById('logout-button');
     const noTokenMessage = document.getElementById('no-token-message');
     const eventList = document.getElementById('event-list');
     const newEventFormContainer = document.getElementById('new-event-form-container');
     const newEventForm = document.getElementById('new-event-form');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+
+    let currentPage = 1;
+    const limit = 5; // Number of events per page
 
     if (token) {
       noTokenMessage.style.display = 'none';
       newEventFormContainer.style.display = 'block';
-      fetchEvents(); // Fetch events on page load
+      fetchEvents(currentPage); // Fetch events on page load
     } else {
       noTokenMessage.style.display = 'block';
       newEventFormContainer.style.display = 'none';
     }
 
-    logoutButton.addEventListener('click', function() {
+    logoutButton.addEventListener('click', function () {
       localStorage.removeItem('token');
       window.location.reload();
     });
 
-    // Fetch events from backend
-    function fetchEvents() {
-      fetch('http://localhost:5000/api/events', {
+    // Fetch events with pagination
+    function fetchEvents(page) {
+      fetch(`http://localhost:5000/api/events?page=${page}&limit=${limit}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -91,25 +96,48 @@
       .then(response => response.json())
       .then(events => {
         eventList.innerHTML = '';
-        events.forEach(event => {
-          const eventCard = document.createElement('div');
-          eventCard.classList.add('event-card');
-          eventCard.innerHTML = `
-            <h3>${event.title}</h3>
-            <p class="event-date">Date: ${moment(event.date).format('MMMM Do YYYY')}</p>
-            <p>Location: ${event.location}</p>
-            <p>${event.description || ''}</p>
-            <button onclick="updateEvent(${event.id}, '${event.title}', '${event.date}', '${event.description}', '${event.location}')">Update</button>
-            <button onclick="confirmDelete(${event.id})">Delete</button>
-          `;
-          eventList.appendChild(eventCard);
-        });
+        if (events.length > 0) {
+          events.forEach(event => {
+            const eventCard = document.createElement('div');
+            eventCard.classList.add('event-card');
+            eventCard.innerHTML = `
+              <h3>${event.title}</h3>
+              <p class="event-date">Date: ${moment(event.date).format('MMMM Do YYYY')}</p>
+              <p>Location: ${event.location}</p>
+              <p>${event.description || ''}</p>
+              <button onclick="updateEvent(${event.id}, '${event.title}', '${event.date}', '${event.description}', '${event.location}')">Update</button>
+              <button onclick="confirmDelete(${event.id})">Delete</button>
+            `;
+            eventList.appendChild(eventCard);
+          });
+        } else {
+          eventList.innerHTML = '<p>No events available.</p>';
+        }
+        updatePaginationButtons(page, events.length === limit);
       })
       .catch(error => console.error('Error fetching events:', error));
     }
 
+    // Update pagination buttons
+    function updatePaginationButtons(page, hasNextPage) {
+      prevButton.style.display = page > 1 ? 'inline-block' : 'none';
+      nextButton.style.display = hasNextPage ? 'inline-block' : 'none';
+    }
+
+    prevButton.addEventListener('click', function () {
+      if (currentPage > 1) {
+        currentPage--;
+        fetchEvents(currentPage);
+      }
+    });
+
+    nextButton.addEventListener('click', function () {
+      currentPage++;
+      fetchEvents(currentPage);
+    });
+
     // Create a new event
-    newEventForm.addEventListener('submit', function(e) {
+    newEventForm.addEventListener('submit', function (e) {
       e.preventDefault();
       const newEvent = {
         title: document.getElementById('title').value,
@@ -126,16 +154,15 @@
         },
         body: JSON.stringify(newEvent)
       })
-      .then(response => response.json())
       .then(() => {
         newEventForm.reset();
-        fetchEvents(); // Refresh events
+        fetchEvents(currentPage); // Refresh events
       })
       .catch(error => console.error('Error creating event:', error));
     });
 
     // Delete an event with confirmation
-    window.confirmDelete = function(eventId) {
+    window.confirmDelete = function (eventId) {
       const confirmed = window.confirm('Are you sure you want to delete this event?');
       if (confirmed) {
         fetch(`http://localhost:5000/api/events/${eventId}`, {
@@ -144,15 +171,13 @@
             Authorization: `Bearer ${token}`
           }
         })
-        .then(() => {
-          fetchEvents(); // Refresh events
-        })
+        .then(() => fetchEvents(currentPage))
         .catch(error => console.error('Error deleting event:', error));
       }
     };
 
     // Update an event with field selection
-    window.updateEvent = function(eventId, currentTitle, currentDate, currentDescription, currentLocation) {
+    window.updateEvent = function (eventId, currentTitle, currentDate, currentDescription, currentLocation) {
       const fieldToUpdate = prompt(
         `Which field do you want to update? (title, date, description, location)`,
         ''
@@ -192,9 +217,7 @@
         },
         body: JSON.stringify(updatedData)
       })
-      .then(() => {
-        fetchEvents(); // Refresh events
-      })
+      .then(() => fetchEvents(currentPage))
       .catch(error => console.error('Error updating event:', error));
     }
   });
