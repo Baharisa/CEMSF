@@ -78,6 +78,14 @@
       margin-bottom: 2rem;
     }
 
+    #hero-section img {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+
     #hero-section .cta-button {
       background: #1e3a8a;
       color: #fff;
@@ -108,6 +116,14 @@
       padding: 20px;
       max-width: 300px;
       text-align: center;
+    }
+
+    .event-card img {
+      width: 100%;
+      border-radius: 10px;
+      height: 150px;
+      object-fit: cover;
+      margin-bottom: 10px;
     }
 
     .event-card h3 {
@@ -154,6 +170,7 @@
 <main>
 
   <section id="hero-section">
+    <img src="images/hero-image.jpg" alt="Campus Event">
     <h2>Welcome to the Campus Event Management System (CEMS)</h2>
     <p>Discover, manage, and participate in campus events with ease. Sign up today to gain access to the full event experience.</p>
     <button class="cta-button" onclick="window.location.href='register.html'">Get Started</button>
@@ -163,18 +180,21 @@
     <h2>Upcoming Events</h2>
     <div class="event-preview">
       <div class="event-card">
+        <img src="images/career-fair.jpg" alt="Career Fair">
         <h3>Career Fair 2024</h3>
         <p>Meet top employers and get your dream job. Don't miss out!</p>
         <p class="event-date">March 10, 2024</p>
       </div>
 
       <div class="event-card">
+        <img src="images/music-festival.jpg" alt="Spring Music Festival">
         <h3>Spring Music Festival</h3>
         <p>Enjoy live music and food trucks on campus!</p>
         <p class="event-date">April 15, 2024</p>
       </div>
 
       <div class="event-card">
+        <img src="images/guest-lecture.jpg" alt="Guest Lecture">
         <h3>Guest Lecture: Tech Trends</h3>
         <p>Learn about emerging trends in technology with our guest speaker.</p>
         <p class="event-date">May 5, 2024</p>
